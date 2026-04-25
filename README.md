@@ -35,6 +35,44 @@ barre: {fret: 1, from_string: 1, to_string: 6}
 
 ![F Major barre chord diagram](docs/images/chord_f_barre.svg)
 
+### Harmony labels
+
+Use `harmony` instead of `fingers` to annotate each note with its interval name. A legend is added automatically.
+
+````markdown
+```chord
+name: G7
+frets: [3, 2, 0, 0, 0, 1]
+harmony: [R, 5, 3, R, 5, b7]
+```
+````
+
+![G7 chord diagram with harmony](docs/images/chord_g7_harmony.svg)
+
+````markdown
+```chord
+name: C Major
+frets: [x, 3, 2, 0, 1, 0]
+harmony: [-, R, 5, 3, R, 3]
+```
+````
+
+![C Major chord diagram with harmony](docs/images/chord_c_major_harmony.svg)
+
+Recognised interval abbreviations: `R`, `b2`, `2`, `b3`, `3`, `4`, `b5`, `5`, `b6`, `6`, `b7`, `7`, `8`. Labels are case-insensitive. Strings with `-`, `0`, or blank are not labelled. The legend shows each unique interval in order; pass `legend: false` to suppress it.
+
+When both `harmony` and `fingers` are provided, `harmony` is shown by default. Use `show: fingers` to flip:
+
+````markdown
+```chord
+name: E Major
+frets: [0, 2, 2, 1, 0, 0]
+fingers: [-, 2, 3, 1, -, -]
+harmony: [R, b7, 3, R, 5, R]
+show: fingers
+```
+````
+
 ### Chord keys
 
 | Key | Description | Default |
@@ -44,7 +82,10 @@ barre: {fret: 1, from_string: 1, to_string: 6}
 | `strings` | Override string count | length of `tuning` |
 | `frets` | Fret per string, low to high. `x` = muted, `0` = open | required |
 | `fingers` | Finger number per string. `-` = omit label | _(none)_ |
-| `root_strings` | 1-indexed string numbers to show in accent colour | _(none)_ |
+| `harmony` | Interval label per string (`R`, `3`, `5`, `b7`, etc.). Shown in preference to `fingers` when present | _(none)_ |
+| `show` | `harmony` or `fingers` — which labels to render when both are provided | `harmony` if `harmony` present, else `fingers` |
+| `legend` | `true`/`false` — show interval legend below the diagram | `true` in harmony mode |
+| `root_strings` | 1-indexed string numbers to show in accent colour (fingers mode only) | _(none)_ |
 | `start_fret` | First fret shown. `1` draws a nut; higher values show a fret indicator | `1` |
 | `barre` | `{fret, from_string, to_string}` — draws a barre bar | _(none)_ |
 
