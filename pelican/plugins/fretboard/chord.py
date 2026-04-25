@@ -20,23 +20,10 @@ MARGIN_LEFT = 38
 MARGIN_RIGHT = 30
 MARGIN_TOP = 56
 MARGIN_BOTTOM = 20
-LEGEND_HEIGHT = 28
+LEGEND_HEIGHT = 18
 NUM_FRETS = 5
 
 SERIF = 'Georgia, "Times New Roman", serif'
-
-INTERVAL_NAMES = {
-    "R":  "Root",
-    "b2": "b2nd", "2": "2nd",
-    "b3": "b3rd", "3": "3rd",
-    "4":  "4th",
-    "b5": "b5th", "5": "5th",
-    "b6": "b6th", "6": "6th",
-    "b7": "b7th", "7": "7th",
-    "8":  "Oct",
-}
-
-_INTERVAL_ORDER = list(INTERVAL_NAMES.keys())
 
 
 def render(data: dict, colors: dict | None = None) -> str:
@@ -83,9 +70,7 @@ def render(data: dict, colors: dict | None = None) -> str:
     show_legend_default = show_mode == "harmony" and has_harmony
     show_legend = bool(data.get("legend", show_legend_default))
 
-    legend_items = _build_legend(harmony, show_mode, has_harmony) if show_legend else []
-
-    legend_h = LEGEND_HEIGHT if legend_items else 0
+    legend_h = LEGEND_HEIGHT if show_legend else 0
     fb_w = (n - 1) * STRING_SPACING
     fb_h = NUM_FRETS * FRET_SPACING
     svg_w = MARGIN_LEFT + fb_w + MARGIN_RIGHT
@@ -134,73 +119,21 @@ def render(data: dict, colors: dict | None = None) -> str:
                         font_weight="bold",
                     ))
 
-    if legend_items:
-        legend_y = MARGIN_TOP + fb_h + MARGIN_BOTTOM
-        _draw_legend(dwg, legend_items, svg_w, legend_y, c)
+    if show_legend:
+        label = "Intervals" if show_mode == "harmony" else "Fingers"
+        legend_y = MARGIN_TOP + fb_h + MARGIN_BOTTOM + LEGEND_HEIGHT - 4
+        dwg.add(dwg.text(
+            label,
+            insert=(svg_w / 2, legend_y),
+            text_anchor="middle",
+            fill=c["line_light"],
+            font_family=SERIF,
+            font_size=10,
+            font_style="italic",
+        ))
 
     return dwg.tostring()
 
-
-def _canonical(h: str) -> str:
-    """Return the canonical INTERVAL_NAMES key for a harmony label, case-insensitively."""
-    s = h.strip()
-    for k in INTERVAL_NAMES:
-        if k.lower() == s.lower():
-            return k
-    return s
-
-
-def _build_legend(harmony, show_mode, has_harmony):
-    if show_mode != "harmony" or not has_harmony:
-        return []
-    seen_order = []
-    seen_set = set()
-    for h in harmony:
-        if h.strip() in ("-", "0", ""):
-            continue
-        key = _canonical(h)
-        if key not in seen_set:
-            seen_set.add(key)
-            seen_order.append(key)
-    seen_order.sort(key=lambda k: _INTERVAL_ORDER.index(k) if k in _INTERVAL_ORDER else 99)
-    return [(k, INTERVAL_NAMES.get(k, k), k == "R") for k in seen_order]
-
-
-def _draw_legend(dwg, items, svg_w, legend_y, c):
-    CIRCLE_R = 5
-    INNER_GAP = 4
-    ENTRY_GAP = 10
-    FONT = 9
-
-    # Estimate total width: circle_diam + gap + name_text
-    char_w = FONT * 0.58
-    widths = [CIRCLE_R * 2 + INNER_GAP + len(name) * char_w for _, name, _ in items]
-    total_w = sum(widths) + ENTRY_GAP * (len(items) - 1)
-
-    x = (svg_w - total_w) / 2
-    cy = legend_y + CIRCLE_R + 2
-
-    for (abbrev, full_name, is_root), entry_w in zip(items, widths):
-        dot_color = c["root"] if is_root else c["note"]
-        cx = x + CIRCLE_R
-        dwg.add(dwg.circle(center=(cx, cy), r=CIRCLE_R, fill=dot_color))
-        dwg.add(dwg.text(
-            abbrev,
-            insert=(cx, cy + 3),
-            text_anchor="middle",
-            fill=c["dot_text"],
-            font_family=SERIF,
-            font_size=7,
-            font_weight="bold",
-        ))
-        dwg.add(dwg.text(
-            full_name,
-            insert=(cx + CIRCLE_R + INNER_GAP, cy + 3),
-            fill=c["line_light"],
-            font_family=SERIF,
-            font_size=FONT,
-        ))
-        x += entry_w + ENTRY_GAP
 
 
 def _parse_fret(f):
