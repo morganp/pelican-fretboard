@@ -26,6 +26,12 @@ FENCED_RE = re.compile(
     re.MULTILINE | re.DOTALL,
 )
 
+# Matches outer fenced blocks with 4+ backticks (used to protect inner code examples)
+OUTER_FENCE_RE = re.compile(
+    r'^(`{4,})(.*?)^\1[ \t]*$',
+    re.MULTILINE | re.DOTALL,
+)
+
 # Fallback: matches <pre><code class="language-chord"> in rendered HTML
 BLOCK_RE = re.compile(
     r'<pre><code[^>]*class="language-(chord|scale|tab)"[^>]*>(.*?)</code></pre>',
@@ -96,7 +102,14 @@ if HAS_MARKDOWN:
             text = '\n'.join(lines)
             _ensure_cache(self.cache_path)
 
+            # Build a set of character ranges that are inside 4+ backtick fences
+            # (code examples) so we don't render those blocks as diagrams
+            protected = [(m.start(), m.end()) for m in OUTER_FENCE_RE.finditer(text)]
+
             def replace(m):
+                pos = m.start()
+                if any(start <= pos < end for start, end in protected):
+                    return m.group(0)
                 block_type = m.group(1).lower()
                 raw_yaml = m.group(2).strip()
                 result = _make_replacement(
