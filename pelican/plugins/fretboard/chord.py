@@ -18,7 +18,7 @@ FRET_STROKE = 1.5
 STRING_STROKE = 1.5
 MARGIN_LEFT = 38
 MARGIN_RIGHT = 30
-MARGIN_TOP = 56
+MARGIN_TOP = 66
 MARGIN_BOTTOM = 20
 NUM_FRETS = 5
 
@@ -81,7 +81,7 @@ def render(data: dict, colors: dict | None = None) -> str:
     if name:
         dwg.add(dwg.text(
             name,
-            insert=(svg_w / 2, 18),
+            insert=(svg_w / 2, 16),
             text_anchor="middle",
             fill=c["line"],
             font_family=SERIF,
@@ -93,7 +93,7 @@ def render(data: dict, colors: dict | None = None) -> str:
         sublabel = "Intervals" if show_mode == "harmony" else "Fingers"
         dwg.add(dwg.text(
             sublabel,
-            insert=(svg_w / 2, 32),
+            insert=(svg_w / 2, 30),
             text_anchor="middle",
             fill=c["line_light"],
             font_family=SERIF,
