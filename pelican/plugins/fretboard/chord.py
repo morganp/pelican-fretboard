@@ -20,7 +20,6 @@ MARGIN_LEFT = 38
 MARGIN_RIGHT = 30
 MARGIN_TOP = 56
 MARGIN_BOTTOM = 20
-LEGEND_HEIGHT = 18
 NUM_FRETS = 5
 
 SERIF = 'Georgia, "Times New Roman", serif'
@@ -70,11 +69,10 @@ def render(data: dict, colors: dict | None = None) -> str:
     show_legend_default = show_mode == "harmony" and has_harmony
     show_legend = bool(data.get("legend", show_legend_default))
 
-    legend_h = LEGEND_HEIGHT if show_legend else 0
     fb_w = (n - 1) * STRING_SPACING
     fb_h = NUM_FRETS * FRET_SPACING
     svg_w = MARGIN_LEFT + fb_w + MARGIN_RIGHT
-    svg_h = MARGIN_TOP + fb_h + MARGIN_BOTTOM + legend_h
+    svg_h = MARGIN_TOP + fb_h + MARGIN_BOTTOM
 
     dwg = svgwrite.Drawing(size=(svg_w, svg_h), profile="full")
     dwg.viewbox(0, 0, svg_w, svg_h)
@@ -89,6 +87,18 @@ def render(data: dict, colors: dict | None = None) -> str:
             font_family=SERIF,
             font_size=14,
             font_weight="bold",
+        ))
+
+    if show_legend:
+        sublabel = "Intervals" if show_mode == "harmony" else "Fingers"
+        dwg.add(dwg.text(
+            sublabel,
+            insert=(svg_w / 2, 32),
+            text_anchor="middle",
+            fill=c["line_light"],
+            font_family=SERIF,
+            font_size=11,
+            font_style="italic",
         ))
 
     _draw_open_muted(dwg, frets, n, c)
@@ -118,19 +128,6 @@ def render(data: dict, colors: dict | None = None) -> str:
                         font_size=11,
                         font_weight="bold",
                     ))
-
-    if show_legend:
-        label = "Intervals" if show_mode == "harmony" else "Fingers"
-        legend_y = MARGIN_TOP + fb_h + MARGIN_BOTTOM + LEGEND_HEIGHT - 4
-        dwg.add(dwg.text(
-            label,
-            insert=(svg_w / 2, legend_y),
-            text_anchor="middle",
-            fill=c["line_light"],
-            font_family=SERIF,
-            font_size=10,
-            font_style="italic",
-        ))
 
     return dwg.tostring()
 
