@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.backends.legacy:build"
+
+[project]
+name = "pelican-fretboard"
+version = "0.1.0"
+description = "Pelican plugin that renders chord, scale and tab diagrams from fenced code blocks"
+readme = "README.md"
+requires-python = ">=3.9"
+license = {text = "MIT"}
+keywords = ["pelican", "plugin", "guitar", "chord", "tab", "fretboard"]
+dependencies = [
+    "pelican>=4.5",
+    "svgwrite>=1.4",
+    "PyYAML>=6.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["pelican*"]
