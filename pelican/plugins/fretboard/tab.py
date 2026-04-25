@@ -9,15 +9,16 @@ DEFAULT_COLORS = {
     "accent": "#E07820",
 }
 
-STRING_HEIGHT = 22
+STRING_HEIGHT = 18
 MARGIN_LEFT = 32
 MARGIN_RIGHT = 20
 MARGIN_TOP = 36
 MARGIN_BOTTOM = 16
-CHAR_WIDTH = 10
+CHAR_WIDTH = 12
 STRING_STROKE = 1.2
 BAR_STROKE = 1.8
-FONT_SIZE = 12
+LABEL_FONT_SIZE = 12
+NOTE_FONT_SIZE = 15
 
 SERIF = 'Georgia, "Times New Roman", serif'
 MONO = '"Courier New", Courier, monospace'
@@ -39,7 +40,7 @@ def render(data: dict, colors: dict | None = None) -> str:
     n_strings = len(lines)
     max_len = max(len(line["content"]) for line in lines)
     content_width = max_len * CHAR_WIDTH
-    label_width = max(len(line["label"]) for line in lines) * (FONT_SIZE * 0.65)
+    label_width = max(len(line["label"]) for line in lines) * (LABEL_FONT_SIZE * 0.65)
 
     svg_w = int(MARGIN_LEFT + label_width + content_width + MARGIN_RIGHT)
     svg_h = int(MARGIN_TOP + (n_strings - 1) * STRING_HEIGHT + STRING_HEIGHT + MARGIN_BOTTOM)
@@ -81,7 +82,7 @@ def render(data: dict, colors: dict | None = None) -> str:
             insert=(MARGIN_LEFT, y + 4),
             fill=c["line"],
             font_family=MONO,
-            font_size=FONT_SIZE,
+            font_size=LABEL_FONT_SIZE,
         ))
         dwg.add(dwg.line(
             start=(content_x, y),
@@ -106,17 +107,17 @@ def render(data: dict, colors: dict | None = None) -> str:
             cx = content_x + ci * CHAR_WIDTH + CHAR_WIDTH / 2
             # Cream rect to knock out the string line behind the number
             dwg.add(dwg.rect(
-                insert=(cx - CHAR_WIDTH * 0.45, y - FONT_SIZE * 0.7),
-                size=(CHAR_WIDTH * 0.9, FONT_SIZE * 0.95),
+                insert=(cx - CHAR_WIDTH * 0.5, y - NOTE_FONT_SIZE * 0.72),
+                size=(CHAR_WIDTH, NOTE_FONT_SIZE * 1.0),
                 fill=c["bg"],
             ))
             dwg.add(dwg.text(
                 ch,
-                insert=(cx, y + 4),
+                insert=(cx, y + 5),
                 text_anchor="middle",
                 fill=c["note"],
                 font_family=MONO,
-                font_size=FONT_SIZE,
+                font_size=NOTE_FONT_SIZE,
                 font_weight="bold",
             ))
 
