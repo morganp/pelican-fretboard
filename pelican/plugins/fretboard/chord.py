@@ -101,7 +101,7 @@ def render(data: dict, colors: dict | None = None) -> str:
             font_style="italic",
         ))
 
-    _draw_open_muted(dwg, frets, n, c)
+    _draw_open_muted(dwg, frets, n, c, labels, root_strings)
     _draw_nut_or_fret(dwg, start_fret, fb_w, c)
     _draw_fret_lines(dwg, fb_w, c)
     _draw_strings(dwg, n, fb_h, c)
@@ -144,7 +144,7 @@ def _parse_fret(f):
         return 0
 
 
-def _draw_open_muted(dwg, frets, n, c):
+def _draw_open_muted(dwg, frets, n, c, labels=None, root_strings=None):
     y = MARGIN_TOP - 14
     for i, f in enumerate(frets):
         x = MARGIN_LEFT + i * STRING_SPACING
@@ -155,8 +155,22 @@ def _draw_open_muted(dwg, frets, n, c):
             dwg.add(dwg.line(start=(x + s, y - s), end=(x - s, y + s),
                              stroke=c["line"], stroke_width=2, stroke_linecap="round"))
         elif f == 0:
-            dwg.add(dwg.circle(center=(x, y), r=6,
-                               fill="none", stroke=c["line"], stroke_width=1.5))
+            label = labels[i] if labels and i < len(labels) else "-"
+            if label not in ("-", "0", ""):
+                dot_color = c["root"] if root_strings and i in root_strings else c["note"]
+                dwg.add(dwg.circle(center=(x, y), r=DOT_RADIUS, fill=dot_color))
+                dwg.add(dwg.text(
+                    label,
+                    insert=(x, y + 4),
+                    text_anchor="middle",
+                    fill=c["dot_text"],
+                    font_family=SERIF,
+                    font_size=11,
+                    font_weight="bold",
+                ))
+            else:
+                dwg.add(dwg.circle(center=(x, y), r=6,
+                                   fill="none", stroke=c["line"], stroke_width=1.5))
 
 
 def _draw_nut_or_fret(dwg, start_fret, fb_w, c):
