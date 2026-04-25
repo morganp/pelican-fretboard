@@ -16,7 +16,7 @@ MARGIN_TOP = 36
 MARGIN_BOTTOM = 16
 CHAR_WIDTH = 10
 STRING_STROKE = 1.2
-BAR_STROKE = 2.0
+BAR_STROKE = 1.8
 FONT_SIZE = 12
 
 SERIF = 'Georgia, "Times New Roman", serif'
@@ -62,9 +62,20 @@ def render(data: dict, colors: dict | None = None) -> str:
 
     content_x = MARGIN_LEFT + label_width
 
+    top_y = MARGIN_TOP
+    bottom_y = MARGIN_TOP + (n_strings - 1) * STRING_HEIGHT
+    bar_extend = STRING_HEIGHT * 0.45
+
+    # Collect barline x positions from all strings (should be consistent)
+    barline_xs = set()
+    for line in lines:
+        for ci, ch in enumerate(line["content"]):
+            if ch == "|":
+                barline_xs.add(content_x + ci * CHAR_WIDTH + CHAR_WIDTH / 2)
+
+    # Draw string lines and labels
     for idx, line in enumerate(lines):
         y = MARGIN_TOP + idx * STRING_HEIGHT
-
         dwg.add(dwg.text(
             line["label"],
             insert=(MARGIN_LEFT, y + 4),
@@ -72,32 +83,42 @@ def render(data: dict, colors: dict | None = None) -> str:
             font_family=MONO,
             font_size=FONT_SIZE,
         ))
-
-        string_x1 = content_x
-        string_x2 = content_x + content_width
         dwg.add(dwg.line(
-            start=(string_x1, y), end=(string_x2, y),
+            start=(content_x, y),
+            end=(content_x + content_width, y),
             stroke=c["line"], stroke_width=STRING_STROKE,
         ))
 
+    # Draw barlines as full-height lines spanning all strings
+    for bx in barline_xs:
+        dwg.add(dwg.line(
+            start=(bx, top_y - bar_extend),
+            end=(bx, bottom_y + bar_extend),
+            stroke=c["line_light"], stroke_width=BAR_STROKE,
+        ))
+
+    # Draw note numbers on top of string lines with cream knockout
+    for idx, line in enumerate(lines):
+        y = MARGIN_TOP + idx * STRING_HEIGHT
         for ci, ch in enumerate(line["content"]):
+            if ch in ("|", "-", " "):
+                continue
             cx = content_x + ci * CHAR_WIDTH + CHAR_WIDTH / 2
-            if ch == "|":
-                dwg.add(dwg.line(
-                    start=(cx, y - STRING_HEIGHT * 0.4),
-                    end=(cx, y + STRING_HEIGHT * 0.4),
-                    stroke=c["line_light"], stroke_width=BAR_STROKE,
-                ))
-            elif ch not in ("-", " "):
-                dwg.add(dwg.text(
-                    ch,
-                    insert=(cx, y + 4),
-                    text_anchor="middle",
-                    fill=c["note"],
-                    font_family=MONO,
-                    font_size=FONT_SIZE,
-                    font_weight="bold",
-                ))
+            # Cream rect to knock out the string line behind the number
+            dwg.add(dwg.rect(
+                insert=(cx - CHAR_WIDTH * 0.45, y - FONT_SIZE * 0.7),
+                size=(CHAR_WIDTH * 0.9, FONT_SIZE * 0.95),
+                fill=c["bg"],
+            ))
+            dwg.add(dwg.text(
+                ch,
+                insert=(cx, y + 4),
+                text_anchor="middle",
+                fill=c["note"],
+                font_family=MONO,
+                font_size=FONT_SIZE,
+                font_weight="bold",
+            ))
 
     return dwg.tostring()
 

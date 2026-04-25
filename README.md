@@ -57,12 +57,13 @@ barre: {fret: 1, from_string: 1, to_string: 6}
 name: A Minor Pentatonic
 tuning: EADGBE
 start_fret: 5
+num_frets: 5
 grid:
   - "R . . x ."
-  - "R . x . ."
-  - "R . x . ."
-  - "R . x . ."
-  - "R . . x ."
+  - "x . x . ."
+  - "x . R . ."
+  - "x . x . ."
+  - "x . . x ."
   - "R . . x ."
 ```
 ````
@@ -97,12 +98,12 @@ The `grid` is one row per string, low to high. Each row is a space-separated seq
 name: Example Riff
 tuning: EADGBe
 tab: |
-  e|-------------|
-  B|-------------|
-  G|-------------|
-  D|--0-2-3-5----|
-  A|--0-2-3-5----|
-  E|0------------|
+  e|----------------|
+  B|----------------|
+  G|----------------|
+  D|----------------|
+  A|----------------|
+  E|0--3-5-3--0-----|
 ```
 ````
 
