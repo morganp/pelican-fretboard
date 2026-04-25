@@ -15,11 +15,12 @@ FRET_SPACING = 36
 DOT_RADIUS = 11
 FRET_STROKE = 1.5
 STRING_STROKE = 1.5
-MARGIN_LEFT = 38
-MARGIN_RIGHT = 30
+MARGIN_LEFT = 52       # wider: accommodates fret labels on the left
+MARGIN_RIGHT = 15
 MARGIN_TOP = 46
 MARGIN_BOTTOM = 20
 NUM_FRETS = 6
+LABEL_GAP = 10         # gap between fret label right edge and note dot edge
 
 SERIF = 'Georgia, "Times New Roman", serif'
 
@@ -68,7 +69,7 @@ def render(data: dict, colors: dict | None = None) -> str:
         ))
 
     _draw_grid(dwg, n, num_frets, fb_w, fb_h, c)
-    _draw_fret_labels(dwg, start_fret, num_frets, fb_w, c)
+    _draw_fret_labels(dwg, start_fret, num_frets, c)
     _draw_notes(dwg, grid, n, num_frets, c)
 
     return dwg.tostring()
@@ -104,17 +105,18 @@ def _draw_grid(dwg, n, num_frets, fb_w, fb_h, c):
         ))
 
 
-def _draw_fret_labels(dwg, start_fret, num_frets, fb_w, c):
+def _draw_fret_labels(dwg, start_fret, num_frets, c):
+    label_x = MARGIN_LEFT - DOT_RADIUS - LABEL_GAP
     for f in range(num_frets):
         label = str(start_fret + f)
-        x = MARGIN_LEFT + fb_w + 8
         y = MARGIN_TOP + (f + 0.5) * FRET_SPACING + 4
         dwg.add(dwg.text(
             label,
-            insert=(x, y),
+            insert=(label_x, y),
+            text_anchor="end",
             fill=c["line_light"],
             font_family=SERIF,
-            font_size=10,
+            font_size=11,
         ))
 
 
