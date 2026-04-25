@@ -24,6 +24,8 @@ NUM_FRETS = 5
 
 SERIF = 'Georgia, "Times New Roman", serif'
 
+_NO_LABEL = frozenset(("-", "0", "", "x", "X", "m", "M"))
+
 
 def render(data: dict, colors: dict | None = None) -> str:
     c = dict(DEFAULT_COLORS)
@@ -118,7 +120,7 @@ def render(data: dict, colors: dict | None = None) -> str:
                 dot_color = c["root"] if i in root_strings else c["note"]
                 dwg.add(dwg.circle(center=(x, y), r=DOT_RADIUS, fill=dot_color))
                 label = labels[i] if i < len(labels) else "-"
-                if label not in ("-", "0", ""):
+                if label not in _NO_LABEL:
                     dwg.add(dwg.text(
                         label,
                         insert=(x, y + 4),
@@ -156,7 +158,7 @@ def _draw_open_muted(dwg, frets, n, c, labels=None, root_strings=None):
                              stroke=c["line"], stroke_width=2, stroke_linecap="round"))
         elif f == 0:
             label = labels[i] if labels and i < len(labels) else "-"
-            if label not in ("-", "0", ""):
+            if label not in _NO_LABEL:
                 dot_color = c["root"] if root_strings and i in root_strings else c["note"]
                 dwg.add(dwg.circle(center=(x, y), r=DOT_RADIUS, fill=dot_color))
                 dwg.add(dwg.text(
